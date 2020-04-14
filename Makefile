@@ -28,28 +28,24 @@ virtualenv: $(VIRTUAL_ENV)
 # ignores test_pythonpackage.py since it runs for too long
 test:
 	$(TOX) -- tests/ --ignore tests/test_pythonpackage.py
-	@if test -n "$$CI"; then .tox/py$(PYTHON_MAJOR_MINOR)/bin/coveralls; fi; \
 
 rebuild_updated_recipes: virtualenv
 	. $(ACTIVATE) && \
 	ANDROID_SDK_HOME=$(ANDROID_SDK_HOME) ANDROID_NDK_HOME=$(ANDROID_NDK_HOME) \
 	$(PYTHON) ci/rebuild_updated_recipes.py
 
-testapps/python2/armeabi-v7a: virtualenv
-	. $(ACTIVATE) && cd testapps/ && \
-    python setup_testapp_python2_sqlite_openssl.py apk --sdk-dir $(ANDROID_SDK_HOME) --ndk-dir $(ANDROID_NDK_HOME) \
-    --requirements sdl2,pyjnius,kivy,python2,openssl,requests,sqlite3,setuptools
-
-testapps/python3/arm64-v8a: virtualenv
-	. $(ACTIVATE) && cd testapps/ && \
-    python setup_testapp_python3_sqlite_openssl.py apk --sdk-dir $(ANDROID_SDK_HOME) --ndk-dir $(ANDROID_NDK_HOME) \
+testapps-with-numpy/%: virtualenv
+	$(eval $@_APP_ARCH := $(shell basename $*))
+	. $(ACTIVATE) && cd testapps/on_device_unit_tests/ && \
+    python setup.py apk --sdk-dir $(ANDROID_SDK_HOME) --ndk-dir $(ANDROID_NDK_HOME) \
     --requirements libffi,sdl2,pyjnius,kivy,python3,openssl,requests,sqlite3,setuptools,numpy \
-    --arch=arm64-v8a
+    --arch=$($@_APP_ARCH)
 
-testapps/python3/armeabi-v7a: virtualenv
-	. $(ACTIVATE) && cd testapps/ && \
-    python setup_testapp_python3_sqlite_openssl.py apk --sdk-dir $(ANDROID_SDK_HOME) --ndk-dir $(ANDROID_NDK_HOME) \
-    --arch=armeabi-v7a
+testapps/%: virtualenv
+	$(eval $@_APP_ARCH := $(shell basename $*))
+	. $(ACTIVATE) && cd testapps/on_device_unit_tests/ && \
+    python setup.py apk --sdk-dir $(ANDROID_SDK_HOME) --ndk-dir $(ANDROID_NDK_HOME) \
+    --arch=$($@_APP_ARCH)
 
 clean:
 	find . -type d -name "__pycache__" -exec rm -r {} +
@@ -77,14 +73,9 @@ docker/run/make/%: docker/build
 	docker run --rm --env-file=.env $(DOCKER_IMAGE) make $*
 
 docker/run/make/with-artifact/%: docker/build
-ifeq (,$(findstring python3,$($*)))
-	$(eval $@_APP_NAME := bdisttest_python3_sqlite_openssl_googlendk)
-else
-	$(eval $@_APP_NAME := bdisttest_python2_sqlite_openssl)
-endif
 	$(eval $@_APP_ARCH := $(shell basename $*))
 	docker run --name p4a-latest --env-file=.env $(DOCKER_IMAGE) make $*
-	docker cp p4a-latest:/home/user/app/testapps/$($@_APP_NAME)__$($@_APP_ARCH)-debug-1.1-.apk ./apks
+	docker cp p4a-latest:/home/user/app/testapps/on_device_unit_tests/bdist_unit_tests_app__$($@_APP_ARCH)-debug-1.1-.apk ./apks
 	docker rm -fv p4a-latest
 
 docker/run/shell: docker/build
