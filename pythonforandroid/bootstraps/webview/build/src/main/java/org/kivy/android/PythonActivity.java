@@ -68,7 +68,7 @@ public class PythonActivity extends Activity {
     public static boolean mBrokenLibraries;
 
     protected static ViewGroup mLayout;
-    protected static WebView mWebView;
+    public static WebView mWebView;
 
     protected static Thread mPythonThread;
 
