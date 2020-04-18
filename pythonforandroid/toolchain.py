@@ -202,6 +202,7 @@ def build_dist_from_args(ctx, dist, args):
         info('Building WITHOUT debugging symbols (--release option used)')
 
     ctx.distribution = dist
+
     ctx.prepare_bootstrap(bs)
     if dist.needs_build:
         ctx.prepare_dist()
@@ -212,6 +213,21 @@ def build_dist_from_args(ctx, dist, args):
                       args, "ignore_setup_py", False
                   ),
                  )
+
+    # Temporary hack
+    # Moves extra sources into the src/main/java dir
+    # until we can determine a better solution with gradle.
+    for i in range(len(args.unknown_args)):
+        arg = args.unknown_args[i]
+        if arg == '--add-source' and i < len(args.unknown_args):
+            adir = args.unknown_args[i+1]
+            files = glob.glob(os.path.join(adir, '**'))
+            for afile in files:
+                rel_path = afile.replace(adir + '/', '')
+                dest_path = os.path.join(ctx.javaclass_dir, rel_path)
+                os.makedirs(os.path.dirname(dest_path), exist_ok=True)
+                info("Copying {} to {}".format(afile, dest_path))
+                shutil.copy(afile, dest_path)
 
     ctx.bootstrap.run_distribute()
 
