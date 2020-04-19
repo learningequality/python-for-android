@@ -32,6 +32,7 @@ android {
         targetSdkVersion {{ android_api }}
         versionCode {{ args.numeric_version }}
         versionName '{{ args.version }}'
+        multiDexEnabled true
     }
 
 	{% if debug_build -%}
@@ -98,4 +99,6 @@ dependencies {
     compile '{{ depend }}'
     {%- endfor %}
     {%- endif %}
+    compile 'com.android.support:support-v4:26.1.0'
+    compile 'com.android.support:multidex:1.0.3'
 }

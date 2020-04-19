@@ -93,6 +93,19 @@
             </intent-filter>
         </receiver>
         {% endif %}
+
+        {% if args.fileprovider_paths %}
+        <provider
+            android:name="android.support.v4.content.FileProvider"
+            android:authorities="{{ args.package }}.fileprovider"
+            android:exported="false"
+            android:grantUriPermissions="true">
+            <meta-data
+                android:name="android.support.FILE_PROVIDER_PATHS"
+                android:resource="@xml/file_paths"/>
+        </provider>
+        {% endif %}
+
     </application>
 
 </manifest>
