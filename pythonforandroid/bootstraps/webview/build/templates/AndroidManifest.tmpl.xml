@@ -49,7 +49,8 @@
                  android:icon="@drawable/icon"
                  android:allowBackup="true"
                  android:theme="{{args.android_apptheme}}{% if not args.window %}.Fullscreen{% endif %}"
-                 android:hardwareAccelerated="true" >
+                 android:hardwareAccelerated="true"
+                 android:usesCleartextTraffic="true" >
         {% for l in args.android_used_libs %}
         <uses-library android:name="{{ l }}" />
         {% endfor %}
@@ -92,6 +93,19 @@
             </intent-filter>
         </receiver>
         {% endif %}
+
+        {% if args.fileprovider_paths %}
+        <provider
+            android:name="android.support.v4.content.FileProvider"
+            android:authorities="{{ args.package }}.fileprovider"
+            android:exported="false"
+            android:grantUriPermissions="true">
+            <meta-data
+                android:name="android.support.FILE_PROVIDER_PATHS"
+                android:resource="@xml/file_paths"/>
+        </provider>
+        {% endif %}
+
     </application>
 
 </manifest>
