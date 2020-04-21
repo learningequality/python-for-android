@@ -9,7 +9,7 @@ LOCAL_MODULE := main
 # Add your application source files here...
 LOCAL_SRC_FILES := start.c pyjniusjni.c
 
-LOCAL_CFLAGS += -I$(PYTHON_INCLUDE_ROOT) $(EXTRA_CFLAGS)
+LOCAL_CFLAGS += -I$(PYTHON_INCLUDE_ROOT) $(EXTRA_CFLAGS) -Wl,--hash-style=both
 
 LOCAL_SHARED_LIBRARIES := python_shared
 
