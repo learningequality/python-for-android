@@ -68,6 +68,7 @@
                   {% if args.activity_launch_mode %}
                   android:launchMode="{{ args.activity_launch_mode }}"
                   {% endif %}
+                  android:windowSoftInputMode="adjustResize"
                   >
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
