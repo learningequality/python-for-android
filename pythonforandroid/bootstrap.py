@@ -154,7 +154,7 @@ class Bootstrap:
                         join(self.build_dir, 'src'))
         with current_directory(self.build_dir):
             with open('project.properties', 'w') as fileh:
-                fileh.write('target=android-{}'.format(self.ctx.android_api))
+                fileh.write('target=android-{}'.format(self.ctx.ndk_api))
 
     def prepare_dist_dir(self):
         ensure_dir(self.dist_dir)
