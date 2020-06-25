@@ -692,7 +692,7 @@ def run_setuppy_install(ctx, project_dir, env=None):
                 "install -c ._tmp_p4a_recipe_constraints.txt -v ."
             ).format(ctx.get_site_packages_dir().
                      replace("'", "'\"'\"'")),
-                    _env=copy.copy(env))
+                    _env=dict(copy.copy(env)))
 
             # Go over all new additions and copy them back:
             info('Copying additions resulting from setup.py back '
@@ -779,13 +779,13 @@ def run_pymodules_install(ctx, modules, project_dir=None,
         info('Upgrade pip to latest version')
         shprint(sh.bash, '-c', (
             "source venv/bin/activate && pip install -U pip"
-        ), _env=copy.copy(base_env))
+        ), _env=dict(copy.copy(base_env)))
 
         # Install Cython in case modules need it to build:
         info('Install Cython in case one of the modules needs it to build')
         shprint(sh.bash, '-c', (
             "venv/bin/pip install Cython"
-        ), _env=copy.copy(base_env))
+        ), _env=dict(copy.copy(base_env)))
 
         # Get environment variables for build (with CC/compiler set):
         standard_recipe = CythonRecipe()
@@ -829,7 +829,7 @@ def run_pymodules_install(ctx, modules, project_dir=None,
                 "venv/bin/pip " +
                 "install -v --target '{0}' --no-deps -r requirements.txt"
             ).format(ctx.get_site_packages_dir().replace("'", "'\"'\"'")),
-                    _env=copy.copy(env))
+                    _env=dict(copy.copy(env)))
 
         # Afterwards, run setup.py if present:
         if project_dir is not None and (
@@ -940,7 +940,7 @@ def biglink_function(soname, objs_paths, extra_link_dirs=None, env=None):
     cc = sh.Command(cc_name.split()[0])
     cc = cc.bake(*cc_name.split()[1:])
 
-    shprint(cc, '-shared', '-O3', '-o', soname, *unique_args, _env=env)
+    shprint(cc, '-shared', '-O3', '-o', soname, *unique_args, _env=dict(env))
 
 
 def copylibs_function(soname, objs_paths, extra_link_dirs=None, env=None):
