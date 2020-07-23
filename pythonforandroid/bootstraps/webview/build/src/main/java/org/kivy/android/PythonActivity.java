@@ -355,21 +355,27 @@ public class PythonActivity extends Activity {
     long lastBackClick = SystemClock.elapsedRealtime();
     @Override
     public boolean onKeyDown(int keyCode, KeyEvent event) {
-        // Check if the key event was the Back button and if there's history
-        if ((keyCode == KeyEvent.KEYCODE_BACK) && mWebView.canGoBack()) {
-            mWebView.goBack();
-            return true;
+        // Check if the key event was the Back button
+        if ((keyCode == KeyEvent.KEYCODE_BACK)) {
+            // If there's some web history, go back
+            if(mWebView.canGoBack()) {
+                mWebView.goBack();
+                return true;
+            }
+            // Otherwise, if it's been a little while since the Back key was
+            // last pressed, register that it's been pressed and notify the
+            // user that pressing it again will close the app.
+            if (SystemClock.elapsedRealtime() - lastBackClick > 2000){
+                lastBackClick = SystemClock.elapsedRealtime();
+                Toast.makeText(this, "Click again to close the app",
+                Toast.LENGTH_LONG).show();
+                return true;
+            }
         }
-        // If it wasn't the Back key or there's no web page history, bubble up to the default
-        // system behavior (probably exit the activity)
-        if (SystemClock.elapsedRealtime() - lastBackClick > 2000){
-            lastBackClick = SystemClock.elapsedRealtime();
-            Toast.makeText(this, "Click again to close the app",
-            Toast.LENGTH_LONG).show();
-            return true;
-        }
-
-        lastBackClick = SystemClock.elapsedRealtime();
+        
+        // If it wasn't the Back key, or if the user tapped the Back key twice, 
+        // quickly and without web history, bubble up to the default system
+        // behavior (probably exit the activity)
         return super.onKeyDown(keyCode, event);
     }
 
