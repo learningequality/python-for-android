@@ -156,14 +156,17 @@ public class PythonActivity extends Activity {
 
             // Set up the webview
             String app_root_dir = getAppRoot();
+            final String load_url = "file:///android_asset/_load.html";
 
             mWebView = new WebView(PythonActivity.mActivity);
             mWebView.getSettings().setJavaScriptEnabled(true);
             mWebView.getSettings().setDomStorageEnabled(true);
-            mWebView.loadUrl("file:///android_asset/_load.html");
+            mWebView.loadUrl(load_url);
 
             mWebView.setLayoutParams(new LayoutParams(LayoutParams.FILL_PARENT, LayoutParams.FILL_PARENT));
             mWebView.setWebViewClient(new WebViewClient() {
+                    boolean first_load_complete = false;
+
                     @Override
                     public boolean shouldOverrideUrlLoading(WebView view, String url) {
                         Uri u = Uri.parse(url);
@@ -180,6 +183,12 @@ public class PythonActivity extends Activity {
                     @Override
                     public void onPageFinished(WebView view, String url) {
                         CookieManager.getInstance().flush();
+                        // Make sure that any attempts to use back functionality don't take us back to the loading screen
+                        // For more info, see: https://stackoverflow.com/questions/8103532/how-to-clear-webview-history-in-android
+                        if (!first_load_complete && !url.equals(load_url)) {
+                            first_load_complete = true;
+                            mWebView.clearHistory();
+                        }
                     }
                 });
             mLayout = new AbsoluteLayout(PythonActivity.mActivity);
