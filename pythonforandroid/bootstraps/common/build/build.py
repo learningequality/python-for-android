@@ -616,11 +616,6 @@ main.py that loads it.''')
             'custom_rules.xml',
             args=args)
 
-    if get_bootstrap_name() == "webview":
-        render('WebViewLoader.tmpl.java',
-               'src/main/java/org/kivy/android/WebViewLoader.java',
-               args=args)
-
     if args.sign:
         render('build.properties', 'build.properties')
     else:
