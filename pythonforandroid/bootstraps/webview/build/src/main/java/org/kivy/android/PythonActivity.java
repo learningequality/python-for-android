@@ -216,9 +216,6 @@ public class PythonActivity extends Activity {
             final Thread pythonThread = new Thread(new PythonMain(), "PythonThread");
             PythonActivity.mPythonThread = pythonThread;
             pythonThread.start();
-
-            final Thread wvThread = new Thread(new WebViewLoaderMain(), "WvThread");
-            wvThread.start();
         }
     }
 
@@ -561,12 +558,5 @@ class PythonMain implements Runnable {
     @Override
     public void run() {
         PythonActivity.nativeInit(new String[0]);
-    }
-}
-
-class WebViewLoaderMain implements Runnable {
-    @Override
-    public void run() {
-        WebViewLoader.testConnection();
     }
 }
