@@ -303,7 +303,9 @@ main.py that loads it.''')
             if exists(python_bundle_dir):
                 tar_dirs.append(python_bundle_dir)
         if get_bootstrap_name() == "webview":
-            tar_dirs.append('webview_includes')
+            for asset in listdir('webview_includes'):
+                shutil.copy(join('webview_includes', asset), join(assets_dir, asset))
+
         if args.private or args.launcher:
             make_tar(
                 join(assets_dir, 'private.mp3'), tar_dirs, args.ignore_path,
