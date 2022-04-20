@@ -140,6 +140,10 @@ class Arch:
     def get_env(self, with_flags_in_cc=True):
         env = {}
 
+        # HOME: User's home directory
+        if 'HOME' in environ:
+            env['HOME'] = environ['HOME']
+
         # CFLAGS/CXXFLAGS: the processor flags
         env['CFLAGS'] = ' '.join(self.common_cflags).format(target=self.target)
         if self.arch_cflags:
