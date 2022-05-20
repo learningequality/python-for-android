@@ -101,6 +101,9 @@ android {
         main {
             jniLibs.srcDir 'libs'
             java {
+                {% if not args.enable_androidx %}
+                exclude 'org/kivy/android/PythonWorker.java'
+                {% endif %}
 
                 {%- for adir, pattern in args.extra_source_dirs -%}
                     srcDir '{{adir}}'
@@ -128,10 +131,16 @@ dependencies {
     implementation '{{ depend }}'
     {%- endfor %}
     {%- endif %}
-    {% if args.presplash_lottie %}
+    {%- if args.presplash_lottie %}
     implementation 'com.airbnb.android:lottie:3.4.0'
     {%- endif %}
     implementation 'com.android.support:support-v4:26.1.0'
     implementation 'com.android.support:multidex:1.0.3'
+    {%- if args.workers %}
+    implementation 'androidx.annotation:annotation:1.3.0'
+    implementation 'androidx.concurrent:concurrent-futures:1.1.0'
+    implementation 'androidx.work:work-runtime:{{ work_manager_version }}'
+    implementation 'androidx.work:work-multiprocess:{{ work_manager_version }}'
+    {%- endif %}
 }
 
