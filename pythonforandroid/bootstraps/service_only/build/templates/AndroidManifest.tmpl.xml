@@ -81,6 +81,11 @@
                  android:process=":service_{{ name }}"
                  android:exported="true" />
         {% endfor %}
+        {% for name in worker_names %}
+        <service android:name="{{ args.package }}.{{ name|capitalize }}WorkerService"
+                 android:process=":worker_{{ name }}"
+                 android:exported="false" />
+        {% endfor %}
 
         {% if args.billing_pubkey %}
         <service android:name="org.kivy.android.billing.BillingReceiver"
