@@ -12,6 +12,7 @@ print('contents of this dir', os.listdir('./'))
 from flask import (
     Flask,
     current_app,
+    jsonify,
     render_template,
     request,
     Markup
@@ -36,6 +37,11 @@ class App(Flask):
         super().__init__(*args, **kwargs)
         setup_lifecycle_callbacks()
         self.service_running = False
+
+    def get_status(self):
+        return jsonify({
+            'service_running': self.service_running,
+        })
 
     @property
     @skip_if_not_running_from_android_device
@@ -86,6 +92,11 @@ def index():
         platform='Android' if RUNNING_ON_ANDROID else 'Desktop',
         service_running=current_app.service_running,
     )
+
+
+@app.route('/status')
+def status():
+    return current_app.get_status()
 
 
 @app.route('/unittests')
