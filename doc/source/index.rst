@@ -59,6 +59,7 @@ Contents
    recipes
    bootstraps
    services
+   workers
    troubleshooting
    docker
    testing_pull_requests

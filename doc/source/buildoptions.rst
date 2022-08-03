@@ -109,6 +109,8 @@ options (this list may not be exhaustive):
   included in AndroidManifest.xml.
 - ``--service``: A service name and the Python script it should
   run. See :ref:`arbitrary_scripts_services`.
+- ``--worker``: A worker name and the Python script it should run. See
+  :ref:`workers` for details.
 - ``--add-source``: Add a source directory to the app's Java code.
 - ``--no-byte-compile-python``: Skip byte compile for .py files.
 - ``--enable-androidx``: Enable AndroidX support library.
@@ -175,6 +177,8 @@ ready.
   included in AndroidManifest.xml.
 - ``--service``: A service name and the Python script it should
   run. See :ref:`arbitrary_scripts_services`.
+- ``--worker``: A worker name and the Python script it should run. See
+  :ref:`workers` for details.
 - ``add-source``: Add a source directory to the app's Java code.
 - ``--port``: The port on localhost that the WebView will
   access. Defaults to 5000.
@@ -196,6 +200,8 @@ systems and frameworks.
 - ``--version``: The version number.
 - ``--service``: A service name and the Python script it should
   run. See :ref:`arbitrary_scripts_services`.
+- ``--worker``: A worker name and the Python script it should run. See
+  :ref:`workers` for details.
 - ``--blacklist``: The path to a file containing blacklisted patterns
   that will be excluded from the final AAR. Defaults to ``./blacklist.txt``.
 - ``--whitelist``: The path to a file containing whitelisted patterns
