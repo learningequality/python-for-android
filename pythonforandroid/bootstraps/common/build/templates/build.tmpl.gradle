@@ -37,7 +37,6 @@ android {
         versionCode {{ args.numeric_version }}
         versionName '{{ args.version }}'
         manifestPlaceholders = {{ args.manifest_placeholders}}
-        multiDexEnabled true
     }
 
 	
@@ -132,6 +131,5 @@ dependencies {
     implementation 'com.airbnb.android:lottie:3.4.0'
     {%- endif %}
     implementation 'com.android.support:support-v4:26.1.0'
-    implementation 'com.android.support:multidex:1.0.3'
 }
 
