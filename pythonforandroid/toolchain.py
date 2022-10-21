@@ -552,6 +552,10 @@ class ToolchainCL:
         parser_packaging.add_argument(
             '--signkeypw', dest='signkeypw', action='store', default=None,
             help='Password for key alias')
+        parser_packaging.add_argument(
+            '--google-services-json', dest='google_services_json',
+            default='google-services.json',
+            help='Path to google-services.json file')
 
         add_parser(
             subparsers,
@@ -627,6 +631,8 @@ class ToolchainCL:
             args.unknown_args += ["--activity-class-name", args.activity_class_name]
         if hasattr(args, "service_class_name") and args.service_class_name != 'org.kivy.android.PythonService':
             args.unknown_args += ["--service-class-name", args.service_class_name]
+        if hasattr(args, "google_services_json") and args.google_services_json:
+            args.unknown_args += ["--google-services-json", args.google_services_json]
 
         self.args = args
 
@@ -990,7 +996,8 @@ class ToolchainCL:
 
         fix_args = ('--dir', '--private', '--add-jar', '--add-source',
                     '--whitelist', '--blacklist', '--presplash', '--icon',
-                    '--icon-bg', '--icon-fg', '--fileprovider-paths')
+                    '--icon-bg', '--icon-fg', '--fileprovider-paths',
+                    '--google-services-json')
         unknown_args = args.unknown_args
 
         for asset in args.assets:

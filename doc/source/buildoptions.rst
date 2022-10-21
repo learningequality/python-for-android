@@ -91,6 +91,9 @@ options (this list may not be exhaustive):
 - ``--add-source``: Add a source directory to the app's Java code.
 - ``--no-compile-pyo``: Do not optimise .py files to .pyo.
 - ``--enable-androidx``: Enable AndroidX support library.
+- ``--enable-google-services``: Enable the Google Services Gradle plugin.
+  This option requires a ``google-services.json`` file in root of the
+  project directory.
 
 
 webview
@@ -152,6 +155,9 @@ ready.
 - ``add-source``: Add a source directory to the app's Java code.
 - ``--port``: The port on localhost that the WebView will
   access. Defaults to 5000.
+- ``--enable-google-services``: Enable the Google Services Gradle plugin.
+  This option requires a ``google-services.json`` file in root of the
+  project directory.
 
 
 service_library
@@ -177,6 +183,9 @@ systems and frameworks.
 - ``--add-jar``: The path to a .jar file to include in the APK. To
   include multiple jar files, pass this argument multiple times.
 - ``add-source``: Add a source directory to the app's Java code.
+- ``--enable-google-services``: Enable the Google Services Gradle plugin.
+  This option requires a ``google-services.json`` file in root of the
+  project directory.
 
 
 Requirements blacklist (APK size optimization)
