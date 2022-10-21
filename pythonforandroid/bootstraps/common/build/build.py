@@ -551,6 +551,13 @@ main.py that loads it.''')
     if args.enable_google_services:
         shutil.copy(args.google_services_json, 'src/google-services.json')
 
+    # Convert the gradle_plugins args to a list of dicts with id and
+    # classpath keys.
+    gradle_plugins = [
+        dict(zip(('id', 'classpath'), spec.split(':', maxsplit=1)))
+        for spec in args.gradle_plugins
+    ]
+
     # gradle build templates
     render(
         'build.tmpl.gradle',
@@ -562,6 +569,7 @@ main.py that loads it.''')
         build_tools_version=build_tools_version,
         debug_build="debug" in args.build_mode,
         is_library=(get_bootstrap_name() == 'service_library'),
+        gradle_plugins=gradle_plugins,
         )
 
     # gradle properties
@@ -764,6 +772,12 @@ tools directory of the Android SDK.
                     default=[],
                     action='append',
                     help='Ddd a repository for gradle')
+    ap.add_argument('--add-gradle-plugin', dest='gradle_plugins',
+                    default=[],
+                    action='append',
+                    help=('Add a plugin for gradle. The format of the option '
+                          'is <plugin-id>:<classpath>. The option can be '
+                          'specified multiple times.'))
     ap.add_argument('--add-packaging-option', dest='packaging_options',
                     default=[],
                     action='append',

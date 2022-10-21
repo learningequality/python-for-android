@@ -94,6 +94,8 @@ options (this list may not be exhaustive):
 - ``--enable-google-services``: Enable the Google Services Gradle plugin.
   This option requires a ``google-services.json`` file in root of the
   project directory.
+- ``--add-gradle-plugins``: Add a plugin for gradle. The format of the option
+  is ``<plugin-id>:<classpath>``. The option can be specified multiple times.
 
 
 webview
@@ -158,6 +160,8 @@ ready.
 - ``--enable-google-services``: Enable the Google Services Gradle plugin.
   This option requires a ``google-services.json`` file in root of the
   project directory.
+- ``--add-gradle-plugins``: Add a plugin for gradle. The format of the option
+  is ``<plugin-id>:<classpath>``. The option can be specified multiple times.
 
 
 service_library
@@ -186,6 +190,8 @@ systems and frameworks.
 - ``--enable-google-services``: Enable the Google Services Gradle plugin.
   This option requires a ``google-services.json`` file in root of the
   project directory.
+- ``--add-gradle-plugin``: Add a plugin for gradle. The format of the option
+  is ``<plugin-id>:<classpath>``. The option can be specified multiple times.
 
 
 Requirements blacklist (APK size optimization)
