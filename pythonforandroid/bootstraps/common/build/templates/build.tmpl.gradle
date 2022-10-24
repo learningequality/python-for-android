@@ -6,6 +6,12 @@ buildscript {
     }
     dependencies {
         classpath 'com.android.tools.build:gradle:7.1.2'
+        {% if args.enable_google_services %}
+        classpath 'com.google.gms:google-services:4.3.14'
+        {% endif %}
+        {% for plugin in gradle_plugins %}
+        classpath '{{ plugin.classpath }}'
+        {% endfor %}
     }
 }
 
@@ -27,6 +33,12 @@ apply plugin: 'com.android.library'
 {% else %}
 apply plugin: 'com.android.application'
 {% endif %}
+{% if args.enable_google_services %}
+apply plugin: 'com.google.gms.google-services'
+{% endif %}
+{% for plugin in gradle_plugins %}
+apply plugin: '{{ plugin.id }}'
+{% endfor %}
 
 android {
     compileSdkVersion {{ android_api }}

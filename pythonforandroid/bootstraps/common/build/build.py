@@ -548,6 +548,16 @@ main.py that loads it.''')
     if args.fileprovider_paths:
         shutil.copy(args.fileprovider_paths, join(res_dir, "xml/file_paths.xml"))
 
+    if args.enable_google_services:
+        shutil.copy(args.google_services_json, 'src/google-services.json')
+
+    # Convert the gradle_plugins args to a list of dicts with id and
+    # classpath keys.
+    gradle_plugins = [
+        dict(zip(('id', 'classpath'), spec.split(':', maxsplit=1)))
+        for spec in args.gradle_plugins
+    ]
+
     # gradle build templates
     render(
         'build.tmpl.gradle',
@@ -559,6 +569,7 @@ main.py that loads it.''')
         build_tools_version=build_tools_version,
         debug_build="debug" in args.build_mode,
         is_library=(get_bootstrap_name() == 'service_library'),
+        gradle_plugins=gradle_plugins,
         )
 
     # gradle properties
@@ -761,6 +772,12 @@ tools directory of the Android SDK.
                     default=[],
                     action='append',
                     help='Ddd a repository for gradle')
+    ap.add_argument('--add-gradle-plugin', dest='gradle_plugins',
+                    default=[],
+                    action='append',
+                    help=('Add a plugin for gradle. The format of the option '
+                          'is <plugin-id>:<classpath>. The option can be '
+                          'specified multiple times.'))
     ap.add_argument('--add-packaging-option', dest='packaging_options',
                     default=[],
                     action='append',
@@ -864,6 +881,15 @@ tools directory of the Android SDK.
     ap.add_argument('--activity-class-name', dest='activity_class_name', default=DEFAULT_PYTHON_ACTIVITY_JAVA_CLASS,
                     help='The full java class name of the main activity')
 
+    ap.add_argument('--enable-google-services', dest='enable_google_services',
+                    action='store_true',
+                    help=('Enable the Google Services Gradle plugin. '
+                          'This requires a google-services.json in the root '
+                          'of the project.'))
+    ap.add_argument('--google-services-json', dest='google_services_json',
+                    default='google-services.json',
+                    help='Path to google-services.json file')
+
     # Put together arguments, and add those from .p4a config file:
     if args is None:
         args = sys.argv[1:]
@@ -949,6 +975,12 @@ tools directory of the Android SDK.
               '--launcher (SDL2 bootstrap only)' +
               'to have something to launch inside the .apk!')
         sys.exit(1)
+
+    if args.enable_google_services and not exists(args.google_services_json):
+        print('You must provide a google-services.json file for '
+              '--enable-google-services')
+        sys.exit(1)
+
     make_package(args)
 
     return args
