@@ -96,6 +96,9 @@ options (this list may not be exhaustive):
   project directory.
 - ``--add-gradle-plugins``: Add a plugin for gradle. The format of the option
   is ``<plugin-id>:<classpath>``. The option can be specified multiple times.
+- ``--enable-crashlytics-native-symbol-upload``: Enable processing and uploading
+  of native symbols to Firebase servers. This flag must be enabled to see
+  properly-symbolicated native stack traces in the Crashlytics dashboard.
 
 
 webview
@@ -162,6 +165,9 @@ ready.
   project directory.
 - ``--add-gradle-plugins``: Add a plugin for gradle. The format of the option
   is ``<plugin-id>:<classpath>``. The option can be specified multiple times.
+- ``--enable-crashlytics-native-symbol-upload``: Enable processing and uploading
+  of native symbols to Firebase servers. This flag must be enabled to see
+  properly-symbolicated native stack traces in the Crashlytics dashboard.
 
 
 service_library

@@ -889,6 +889,9 @@ tools directory of the Android SDK.
     ap.add_argument('--google-services-json', dest='google_services_json',
                     default='google-services.json',
                     help='Path to google-services.json file')
+    ap.add_argument('--enable-crashlytics-native-symbol-upload', dest='enable_crashlytics_native_symbol_upload',
+                    action='store-true',
+                    help='Enable processing and uploading of native symbols to Firebase servers.')
 
     # Put together arguments, and add those from .p4a config file:
     if args is None:
