@@ -22,8 +22,8 @@ import org.kivy.android.PythonUtil;
 public class PythonWorker extends RemoteListenableWorker {
     private static final String TAG = "PythonWorker";
 
-    // WorkRequest data key for python service argument
-    public static final String ARGUMENT_SERVICE_ARGUMENT = "PYTHON_SERVICE_ARGUMENT";
+    // WorkRequest data key for python worker argument
+    public static final String ARGUMENT_WORKER_ARGUMENT = "PYTHON_WORKER_ARGUMENT";
 
     // Python environment variables
     private String androidPrivate;
@@ -33,12 +33,16 @@ public class PythonWorker extends RemoteListenableWorker {
     private String pythonPath;
     private String workerEntrypoint;
 
+    public static PythonWorker mWorker = null;
+
     public PythonWorker(
         @NonNull Context context,
         @NonNull WorkerParameters params) {
         super(context, params);
 
         String appRoot = PythonUtil.getAppRoot(context);
+
+        PythonWorker.mWorker = this;
 
         androidPrivate = appRoot;
         androidArgument = appRoot;
@@ -64,7 +68,7 @@ public class PythonWorker extends RemoteListenableWorker {
     @Override
     public ListenableFuture<Result> startRemoteWork() {
         return CallbackToFutureAdapter.getFuture(completer -> {
-            String dataArg = getInputData().getString(ARGUMENT_SERVICE_ARGUMENT);
+            String dataArg = getInputData().getString(ARGUMENT_WORKER_ARGUMENT);
             final String serviceArg;
             if (dataArg != null) {
                 Log.d(TAG, "Setting python service argument to " + dataArg);
