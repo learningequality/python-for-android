@@ -24,10 +24,10 @@ public class {{ name|capitalize }}Worker extends PythonWorker {
         mWorker = this;
     }
 
-    public static Data buildInputData (String serviceArgument) {
-        String dataArgument = serviceArgument == null ? "" : serviceArgument;
+    public static Data buildInputData (String workerArgument) {
+        String dataArgument = workerArgument == null ? "" : workerArgument;
         Data data = new Data.Builder()
-            .putString(ARGUMENT_SERVICE_ARGUMENT, dataArgument)
+            .putString(ARGUMENT_WORKER_ARGUMENT, dataArgument)
             .putString(ARGUMENT_PACKAGE_NAME, "{{ args.package }}")
             .putString(ARGUMENT_CLASS_NAME,
                        {{ name|capitalize }}WorkerService.class.getName())
@@ -38,8 +38,8 @@ public class {{ name|capitalize }}Worker extends PythonWorker {
 
     public static WorkRequest buildWorkRequest (
         WorkRequest.Builder builder,
-        String serviceArgument) {
-        Data data = buildInputData(serviceArgument);
+        String workerArgument) {
+        Data data = buildInputData(workerArgument);
         return builder.setInputData(data).build();
     }
 }
