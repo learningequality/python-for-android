@@ -364,7 +364,6 @@ static int native_service_start(
     jstring j_python_name,
     jstring j_python_home,
     jstring j_python_path,
-    jstring j_arg,
     bool call_exit) {
   jboolean iscopy;
   const char *android_private =
@@ -379,7 +378,6 @@ static int native_service_start(
       (*env)->GetStringUTFChars(env, j_python_home, &iscopy);
   const char *python_path =
       (*env)->GetStringUTFChars(env, j_python_path, &iscopy);
-  const char *arg = (*env)->GetStringUTFChars(env, j_arg, &iscopy);
 
   setenv("ANDROID_PRIVATE", android_private, 1);
   setenv("ANDROID_ARGUMENT", android_argument, 1);
@@ -389,7 +387,6 @@ static int native_service_start(
   setenv("PYTHON_NAME", python_name, 1);
   setenv("PYTHONHOME", python_home, 1);
   setenv("PYTHONPATH", python_path, 1);
-  setenv("PYTHON_SERVICE_ARGUMENT", arg, 1);
   setenv("P4A_BOOTSTRAP", bootstrap_name, 1);
 
   char *argv[] = {"."};
@@ -410,6 +407,9 @@ JNIEXPORT int JNICALL Java_org_kivy_android_PythonService_nativeStart(
     jstring j_python_path,
     jstring j_arg) {
   LOGP("Entering org.kivy.android.PythonService.nativeStart");
+  jboolean iscopy;
+  const char *arg = (*env)->GetStringUTFChars(env, j_arg, &iscopy);
+  setenv("PYTHON_SERVICE_ARGUMENT", arg, 1);
   return native_service_start(env,
                               thiz,
                               j_android_private,
@@ -418,7 +418,6 @@ JNIEXPORT int JNICALL Java_org_kivy_android_PythonService_nativeStart(
                               j_python_name,
                               j_python_home,
                               j_python_path,
-                              j_arg,
                               true);
 }
 
@@ -433,6 +432,9 @@ JNIEXPORT int JNICALL Java_org_kivy_android_PythonWorker_nativeStart(
     jstring j_python_path,
     jstring j_arg) {
   LOGP("Entering org.kivy.android.PythonWorker.nativeStart");
+  jboolean iscopy;
+  const char *arg = (*env)->GetStringUTFChars(env, j_arg, &iscopy);
+  setenv("PYTHON_WORKER_ARGUMENT", arg, 1);
   return native_service_start(env,
                               thiz,
                               j_android_private,
@@ -441,7 +443,6 @@ JNIEXPORT int JNICALL Java_org_kivy_android_PythonWorker_nativeStart(
                               j_python_name,
                               j_python_home,
                               j_python_path,
-                              j_arg,
                               false);
 }
 
