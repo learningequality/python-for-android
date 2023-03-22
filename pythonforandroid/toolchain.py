@@ -712,7 +712,7 @@ class ToolchainCL:
 
         self.warn_on_deprecated_args(args)
 
-        self.storage_dir = args.storage_dir
+        self.storage_dir = os.path.abspath(args.storage_dir)
         self.ctx.setup_dirs(self.storage_dir)
         self.sdk_dir = args.sdk_dir
         self.ndk_dir = args.ndk_dir
