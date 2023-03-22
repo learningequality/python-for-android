@@ -574,6 +574,11 @@ class ToolchainCL:
 
         add_parser(
             subparsers,
+            'bootstrap', help='Build a fully bootstrapped Android project',
+            parents=[parser_packaging])
+
+        add_parser(
+            subparsers,
             'create', help='Compile a set of requirements into a dist',
             parents=[generic_parser])
         add_parser(
@@ -1042,19 +1047,18 @@ class ToolchainCL:
 
         return env
 
-    def _build_package(self, args, package_type):
+    def _prepare_project(self, args):
         """
-        Creates an android package using gradle
+        Finalizes all setup of an Android project from the bootstrap
+        and templating.
         :param args: parser args
-        :param package_type: one of 'apk', 'aar', 'aab'
-        :return (gradle output, build_args)
+        :return build_args
         """
         ctx = self.ctx
         dist = self._dist
         bs = Bootstrap.get_bootstrap(args.bootstrap, ctx)
         ctx.prepare_bootstrap(bs)
         self._fix_args(args)
-        env = self._prepare_release_env(args)
 
         with current_directory(dist.dist_dir):
             self.hook("before_apk_build")
@@ -1065,6 +1069,20 @@ class ToolchainCL:
             )
 
             self.hook("after_apk_build")
+            return build_args
+
+    def _build_package(self, args, package_type):
+        """
+        Creates an android package using gradle
+        :param args: parser args
+        :param package_type: one of 'apk', 'aar', 'aab'
+        :return gradle output
+        """
+        ctx = self.ctx
+        dist = self._dist
+        env = self._prepare_release_env(args)
+
+        with current_directory(dist.dist_dir):
             self.hook("before_apk_assemble")
             build_tools_versions = os.listdir(join(ctx.sdk_dir,
                                                    'build-tools'))
@@ -1113,7 +1131,7 @@ class ToolchainCL:
             # See PR: kivy/python-for-android#2705
             output = shprint(gradlew, "clean", gradle_task, _tail=20,
                              _critical=True, _env=env)
-        return output, build_args
+        return output
 
     def _finish_package(self, args, output, build_args, package_type, output_dir):
         """
@@ -1171,21 +1189,32 @@ class ToolchainCL:
 
     @require_prebuilt_dist
     def apk(self, args):
-        output, build_args = self._build_package(args, package_type='apk')
+        build_args = self._prepare_project(args)
+        output = self._build_package(args, package_type='apk')
         output_dir = join(self._dist.dist_dir, "build", "outputs", 'apk', args.build_mode)
         self._finish_package(args, output, build_args, 'apk', output_dir)
 
     @require_prebuilt_dist
     def aar(self, args):
-        output, build_args = self._build_package(args, package_type='aar')
+        build_args = self._prepare_project(args)
+        output = self._build_package(args, package_type='aar')
         output_dir = join(self._dist.dist_dir, "build", "outputs", 'aar')
         self._finish_package(args, output, build_args, 'aar', output_dir)
 
     @require_prebuilt_dist
     def aab(self, args):
-        output, build_args = self._build_package(args, package_type='aab')
+        build_args = self._prepare_project(args)
+        output = self._build_package(args, package_type='aab')
         output_dir = join(self._dist.dist_dir, "build", "outputs", 'bundle', args.build_mode)
         self._finish_package(args, output, build_args, 'aab', output_dir)
+
+    @require_prebuilt_dist
+    def bootstrap(self, args):
+        """
+        Create a distribution directory if it doesn't already exist, run
+        any recipes if necessary, and use the bootstrap templates to build the project.
+        """
+        self._prepare_project(args)
 
     @require_prebuilt_dist
     def create(self, args):
