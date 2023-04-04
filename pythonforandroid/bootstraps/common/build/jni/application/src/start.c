@@ -197,6 +197,10 @@ static int run_python(int argc, char *argv[], bool call_exit) {
   Py_Initialize();
   LOGP("Initialized python");
 
+  /* Ensure that we are registering this thread against the GIL */
+  PyGILState_STATE gstate;
+  gstate = PyGILState_Ensure();
+
   /* ensure threads will work.
    */
   LOGP("AND: Init threads");
@@ -342,16 +346,13 @@ static int run_python(int argc, char *argv[], bool call_exit) {
     PyRun_SimpleString(terminatecmd);
   }
 
+  /* Release the thread. No Python API allowed beyond this point. */
+  PyGILState_Release(gstate);
+
   /* This should never actually be reached with call_exit.
    */
   if (call_exit)
     LOGP("Unexpectedly reached python finalization");
-#if PY_MAJOR_VERSION < 3
-  Py_Finalize();
-#else
-  if (Py_FinalizeEx() != 0)  // properly check success on Python 3
-    LOGP("Py_FinalizeEx() returned an error!");
-#endif
 
   return ret;
 }
@@ -452,6 +453,10 @@ JNIEXPORT int JNICALL Java_org_kivy_android_PythonWorker_nativeStart(
                               j_python_home,
                               j_python_path,
                               false);
+}
+
+JNIEXPORT int JNICALL Java_org_kivy_android_PythonWorker_tearDownPython(JNIEnv *env, jclass cls) {
+    return Py_FinalizeEx();
 }
 
 #if defined(BOOTSTRAP_NAME_WEBVIEW) || defined(BOOTSTRAP_NAME_SERVICEONLY)

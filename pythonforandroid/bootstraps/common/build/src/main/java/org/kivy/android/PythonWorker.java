@@ -16,6 +16,7 @@ import com.google.common.util.concurrent.ListenableFuture;
 import java.io.File;
 import java.lang.System;
 import java.util.concurrent.Executors;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import org.kivy.android.PythonUtil;
 
@@ -34,6 +35,8 @@ public class PythonWorker extends RemoteListenableWorker {
     private String workerEntrypoint;
 
     public static PythonWorker mWorker = null;
+
+    private static final AtomicInteger threadCounter = new AtomicInteger(0);
 
     public PythonWorker(
         @NonNull Context context,
@@ -100,12 +103,20 @@ public class PythonWorker extends RemoteListenableWorker {
             final Thread pythonThread = new Thread(new Runnable() {
                 @Override
                 public void run() {
+                    threadCounter.incrementAndGet();
                     int res = nativeStart(
                         androidPrivate, androidArgument,
                         workerEntrypoint, pythonName,
                         pythonHome, pythonPath,
                         serviceArg
                     );
+
+                    int remainingThreads = threadCounter.decrementAndGet();
+
+                    if (remainingThreads == 0) {
+                        tearDownPython();
+                    }
+
                     Log.d(TAG, "Finished remote python work: " + res);
 
                     if (res == 0) {
@@ -131,4 +142,6 @@ public class PythonWorker extends RemoteListenableWorker {
         String pythonHome, String pythonPath,
         String pythonServiceArgument
     );
+
+    public static native int tearDownPython();
 }
