@@ -77,7 +77,9 @@ static int file_exists(const char *filename) {
   return 0;
 }
 
-static int run_python(int argc, char *argv[], bool call_exit) {
+static int gil_init = 0; /* 1 when Python has been initialied/GIL created */
+
+static int run_python(int argc, char *argv[], bool call_exit, char* argument_name, char* argument_value) {
 
   char *env_argument = NULL;
   char *env_entrypoint = NULL;
@@ -194,17 +196,26 @@ static int run_python(int argc, char *argv[], bool call_exit) {
            " recipes should have this folder, should we expect a crash soon?");
   }
 
-  Py_Initialize();
-  LOGP("Initialized python");
+  if (!gil_init) {
+    gil_init = 1;
+    Py_Initialize();
+    LOGP("Initialized python");
+    /* ensure threads will work.
+    */
+    LOGP("Calling init threads (unneeded for Python 3.7+)");
+    PyEval_InitThreads();
+    PyEval_SaveThread();
+  } else {
+    LOGP("Python already initialized in this process");
+  }
 
   /* Ensure that we are registering this thread against the GIL */
   PyGILState_STATE gstate;
+  LOGP("Attempting to register against the Global Interpreter Lock");
+
   gstate = PyGILState_Ensure();
 
-  /* ensure threads will work.
-   */
-  LOGP("AND: Init threads");
-  PyEval_InitThreads();
+  LOGP("Registered against the Global Interpreter Lock");
 
 #if PY_MAJOR_VERSION < 3
   initandroidembed();
@@ -314,6 +325,30 @@ static int run_python(int argc, char *argv[], bool call_exit) {
     return -1;
   }
 
+  if (argument_name != NULL && argument_value != NULL) {
+    LOGP("Setting argument name and value in __main__ namespace");
+    // Calculate the size of the string
+    int size = snprintf(NULL, 0, "%s = '%s'", argument_name, argument_value);
+
+    // Allocate enough memory (plus one for the null terminator)
+    char* command = malloc(size + 1);
+    if (command == NULL) {
+        LOGP("Memory allocation failed\n");
+        exit(EXIT_FAILURE);
+    }
+
+    // Now format the string
+    snprintf(command, size + 1, "%s = '%s'", argument_name, argument_value);
+
+    // Running the command in the __main__ module context
+    PyRun_SimpleString(command);
+
+    // Free the memory
+    free(command);
+  } else {
+    LOGP("No argument name and value provided");
+  }
+
   /* run python !
    */
   ret = PyRun_SimpleFile(fd, entrypoint);
@@ -347,7 +382,9 @@ static int run_python(int argc, char *argv[], bool call_exit) {
   }
 
   /* Release the thread. No Python API allowed beyond this point. */
+  LOGP("Attempting to release Global Interpreter Lock");
   PyGILState_Release(gstate);
+  LOGP("Released Global Interpreter Lock");
 
   /* This should never actually be reached with call_exit.
    */
@@ -373,6 +410,8 @@ static int native_service_start(
     jstring j_python_name,
     jstring j_python_home,
     jstring j_python_path,
+    char* argument_name,
+    char* argument_value,
     bool call_exit) {
   jboolean iscopy;
   const char *android_private =
@@ -402,7 +441,7 @@ static int native_service_start(
   /* ANDROID_ARGUMENT points to service subdir,
    * so run_python() will run main.py from this dir
    */
-  return run_python(1, argv, call_exit);
+  return run_python(1, argv, call_exit, argument_name, argument_value);
 }
 
 JNIEXPORT int JNICALL Java_org_kivy_android_PythonService_nativeStart(
@@ -427,6 +466,8 @@ JNIEXPORT int JNICALL Java_org_kivy_android_PythonService_nativeStart(
                               j_python_name,
                               j_python_home,
                               j_python_path,
+                              "PYTHON_SERVICE_ARGUMENT",
+                              arg,
                               true);
 }
 
@@ -452,6 +493,8 @@ JNIEXPORT int JNICALL Java_org_kivy_android_PythonWorker_nativeStart(
                               j_python_name,
                               j_python_home,
                               j_python_path,
+                              "PYTHON_WORKER_ARGUMENT",
+                              arg,
                               false);
 }
 
@@ -495,7 +538,7 @@ int Java_org_kivy_android_PythonActivity_nativeInit(JNIEnv* env, jclass cls, job
   argv[1] = NULL;
   /* status = SDL_main(1, argv); */
 
-  return run_python(1, argv, true);
+  return run_python(1, argv, true, NULL, NULL);
 
   /* Do not issue an exit or the whole application will terminate instead of just the SDL thread */
   /* exit(status); */
