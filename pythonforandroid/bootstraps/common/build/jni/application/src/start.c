@@ -5,6 +5,7 @@
 #error Python headers needed to compile C extensions, please install development version of Python.
 #else
 
+#include <pthread.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdbool.h>
@@ -71,7 +72,17 @@ static int file_exists(const char *filename) {
   return 0;
 }
 
-static int gil_init = 0; /* 1 when Python has been initialied/GIL created */
+static pthread_once_t pythonInitialized = PTHREAD_ONCE_INIT; /* Control when to initialize Python */
+
+void initPython(void) {
+  Py_Initialize();
+  LOGP("Initialized python");
+  /* ensure threads will work.
+  */
+  LOGP("Calling init threads (unneeded for Python 3.7+)");
+  PyEval_InitThreads();
+  PyEval_SaveThread();
+}
 
 static int run_python(int argc, char *argv[], bool call_exit, char* argument_name, char* argument_value) {
 
@@ -190,18 +201,7 @@ static int run_python(int argc, char *argv[], bool call_exit, char* argument_nam
            " recipes should have this folder, should we expect a crash soon?");
   }
 
-  if (!gil_init) {
-    gil_init = 1;
-    Py_Initialize();
-    LOGP("Initialized python");
-    /* ensure threads will work.
-    */
-    LOGP("Calling init threads (unneeded for Python 3.7+)");
-    PyEval_InitThreads();
-    PyEval_SaveThread();
-  } else {
-    LOGP("Python already initialized in this process");
-  }
+  pthread_once(&pythonInitialized, initPython);
 
   /* Ensure that we are registering this thread against the GIL */
   PyGILState_STATE gstate;
