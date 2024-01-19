@@ -227,7 +227,8 @@ static int run_python(int argc, char *argv[], bool call_exit, char* argument_val
 
   if (dir_exists(python_bundle_dir)) {
     snprintf(add_site_packages_dir, 256,
-             "sys.path.append('%s/site-packages')",
+             "if '%s/site-packages' not in sys.path:\n"
+             "    sys.path.append('%s/site-packages')\n",
              python_bundle_dir);
 
     PyRun_SimpleString("import sys\n"
@@ -235,7 +236,7 @@ static int run_python(int argc, char *argv[], bool call_exit, char* argument_val
                        "from os.path import realpath, join, dirname");
     PyRun_SimpleString(add_site_packages_dir);
     /* "sys.path.append(join(dirname(realpath(__file__)), 'site-packages'))") */
-    PyRun_SimpleString("sys.path = ['.'] + sys.path");
+    PyRun_SimpleString("sys.path = sys.path if '.' in sys.path else ['.'] + sys.path");
   }
 
   PyRun_SimpleString(
