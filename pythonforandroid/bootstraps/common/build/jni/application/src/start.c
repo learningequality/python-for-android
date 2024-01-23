@@ -223,12 +223,13 @@ static int run_python(int argc, char *argv[], bool call_exit, char* argument_val
    */
   PyRun_SimpleString("import io, sys, posix\n");
 
-  char add_site_packages_dir[256];
+  char add_site_packages_dir[512];
 
   if (dir_exists(python_bundle_dir)) {
-    snprintf(add_site_packages_dir, 256,
-             "if '%s/site-packages' not in sys.path:\n"
-             "    sys.path.append('%s/site-packages')\n",
+    snprintf(add_site_packages_dir, 512,
+             "site_packages_path = '%s/site-packages'\n"
+             "if site_packages_path not in sys.path:\n"
+             "    sys.path.append(site_packages_path)",
              python_bundle_dir);
 
     PyRun_SimpleString("import sys\n"
