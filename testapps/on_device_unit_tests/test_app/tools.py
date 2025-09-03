@@ -176,3 +176,40 @@ def setup_lifecycle_callbacks():
         onActivityStopped=lambda activity: print('onActivityStopped'),
         onActivityDestroyed=lambda activity: print('onActivityDestroyed'),
     )
+
+
+@skip_if_not_running_from_android_device
+def get_work_manager():
+    """
+    Return the application's `WorkManager` instance.
+
+    .. warning:: This function will only be ran if executed from android"""
+    from jnius import autoclass
+
+    WorkManager = autoclass('androidx.work.WorkManager')
+    activity = get_android_python_activity()
+    return WorkManager.getInstance(activity)
+
+
+@skip_if_not_running_from_android_device
+def work_info_observer(callback):
+    """
+    Creates on Observer for a WorkInfo instance
+
+    .. warning:: This function will only be ran if executed from android."""
+    from jnius import PythonJavaClass, cast, java_method
+
+    class WorkInfoObserver(PythonJavaClass):
+        __javainterfaces__ = ['androidx/lifecycle/Observer']
+        __javacontext__ = 'app'
+
+        def __init__(self, callback, **kwargs):
+            super().__init__(**kwargs)
+            self.callback = callback
+
+        @java_method('(Ljava/lang/Object;)V')
+        def onChanged(self, obj):
+            workinfo = cast('androidx.work.WorkInfo', obj)
+            self.callback(workinfo)
+
+    return WorkInfoObserver(callback)

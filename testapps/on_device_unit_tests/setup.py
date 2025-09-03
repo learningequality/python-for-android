@@ -50,6 +50,7 @@ options = {
             'permissions': ['INTERNET', 'VIBRATE'],
             'orientation': ['portrait', 'landscape'],
             'service': 'P4a_test_service:app_service.py',
+            'worker': 'P4a_test_worker:app_worker.py',
         },
     'aab':
         {
@@ -64,6 +65,7 @@ options = {
             'permissions': ['INTERNET', 'VIBRATE'],
             'orientation': ['portrait', 'landscape'],
             'service': 'P4a_test_service:app_service.py',
+            'worker': 'P4a_test_worker:app_worker.py',
         },
     'aar':
         {
@@ -75,6 +77,7 @@ options = {
             'bootstrap': 'service_library',
             'permissions': ['INTERNET', 'VIBRATE'],
             'service': 'P4a_test_service:app_service.py',
+            'worker': 'P4a_test_worker:app_worker.py',
         }
 }
 
