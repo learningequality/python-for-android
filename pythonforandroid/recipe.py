@@ -1266,7 +1266,7 @@ class PyProjectRecipe(PythonRecipe):
 
     def build_arch(self, arch):
         self.install_hostpython_prerequisites(
-            packages=["build[virtualenv]", "pip"] + self.hostpython_prerequisites
+            packages=["build[virtualenv]<1.4.3", "pip"] + self.hostpython_prerequisites
         )
         build_dir = self.get_build_dir(arch.arch)
         env = self.get_recipe_env(arch, with_flags_in_cc=True)
